@@ -187,22 +187,23 @@ open class TurnByTurn(
     }
 
     private fun createCustomPinView() {
+        val annotationApi = myMapView?.annotations
+
+        myMapView?.annotations?.cleanup()
+
+        val pointAnnotationManager = annotationApi?.createPointAnnotationManager(myMapView!!)
+
         for (wp in addedWaypoints.coordinatesList().drop(1).dropLast(1)) {
             val stream = context.assets.open(getPinImageFromAsset())
             var bitmap: Bitmap = BitmapFactory.decodeStream(stream)
             bitmap = Bitmap.createScaledBitmap(bitmap, 50, 60, true)
 
-
-            // Create an instance of the Annotation API and get the PointAnnotationManager.
-            val annotationApi = myMapView?.annotations
-            val pointAnnotationManager = annotationApi?.createPointAnnotationManager(myMapView!!)
             val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
                 .withPoint(wp)
                 .withIconImage(bitmap)
                 .withIconAnchor(IconAnchor.BOTTOM)
             // Add the resulting pointAnnotation to the map.
             pointAnnotationManager?.create(pointAnnotationOptions)
-
         }
     }
 
