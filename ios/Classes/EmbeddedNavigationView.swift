@@ -239,6 +239,8 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
         routeOptions.includesAlternativeRoutes = _alternatives
         self.routeOptions = routeOptions
         
+        navigationMapView?.mapView.viewAnnotations.removeAll()
+        
         if (_customPinPath != nil) {
             for wp in _wayPoints.dropFirst().dropLast() {
                 let options = ViewAnnotationOptions(geometry: Point(wp.coordinate), allowOverlap: true, anchor: .bottom)
@@ -314,6 +316,8 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
 
         _navigationViewController!.showsReportFeedback = _showReportFeedbackButton
         _navigationViewController!.showsEndOfRouteFeedback = _showEndOfRouteFeedback
+        
+        _navigationViewController?.navigationMapView?.mapView.viewAnnotations.removeAll()
         
         if (_customPinPath != nil) {
             for wp in _wayPoints.dropFirst().dropLast() {

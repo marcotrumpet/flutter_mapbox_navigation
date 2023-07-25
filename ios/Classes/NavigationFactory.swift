@@ -178,6 +178,7 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
             self._navigationViewController!.showsReportFeedback = _showReportFeedbackButton
             self._navigationViewController!.showsEndOfRouteFeedback = _showEndOfRouteFeedback
             
+            self._navigationViewController?.navigationMapView?.mapView.viewAnnotations.removeAll()
             
             if (_customPinPath != nil) {
                 for wp in _wayPoints.dropFirst().dropLast() {
