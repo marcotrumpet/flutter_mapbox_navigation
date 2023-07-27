@@ -243,7 +243,7 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
         
         if (_customPinPath != nil) {
             for wp in _wayPoints.dropFirst().dropLast() {
-                let options = ViewAnnotationOptions(geometry: Point(wp.coordinate), allowOverlap: true, anchor: .bottom)
+                let options = ViewAnnotationOptions(geometry: Point(wp.coordinate), allowOverlap: true, anchor: .center)
                 let annotationView = createCustomPinView()
                 
                 if (annotationView != nil) {
@@ -321,7 +321,7 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
         
         if (_customPinPath != nil) {
             for wp in _wayPoints.dropFirst().dropLast() {
-                let options = ViewAnnotationOptions(geometry: Point(wp.coordinate), allowOverlap: true, anchor: .bottom)
+                let options = ViewAnnotationOptions(geometry: Point(wp.coordinate), allowOverlap: true, anchor: .center)
                 let annotationView = createCustomPinView()
                 
                 if (annotationView != nil) {

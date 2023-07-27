@@ -182,7 +182,7 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
             
             if (_customPinPath != nil) {
                 for wp in _wayPoints.dropFirst().dropLast() {
-                    let options = ViewAnnotationOptions(geometry: Point(wp.coordinate), allowOverlap: true, anchor: .bottom)
+                    let options = ViewAnnotationOptions(geometry: Point(wp.coordinate), allowOverlap: true, anchor: .center)
                     let annotationView = createCustomPinView()
                     
                     if (annotationView != nil) {
@@ -206,7 +206,7 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
             return nil
         }
         let image = UIImageView(image:  UIImage.init(contentsOfFile: path!))
-        image.frame.size = CGSize(width: 25, height: 30)
+        image.frame.size = CGSize(width: 35, height: 35)
         return image
     }
     
