@@ -196,12 +196,12 @@ open class TurnByTurn(
         for (wp in addedWaypoints.coordinatesList().drop(1).dropLast(1)) {
             val stream = context.assets.open(getPinImageFromAsset())
             var bitmap: Bitmap = BitmapFactory.decodeStream(stream)
-            bitmap = Bitmap.createScaledBitmap(bitmap, 50, 60, true)
+            bitmap = Bitmap.createScaledBitmap(bitmap, 60, 60, true)
 
             val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
                 .withPoint(wp)
                 .withIconImage(bitmap)
-                .withIconAnchor(IconAnchor.BOTTOM)
+                .withIconAnchor(IconAnchor.CENTER)
             // Add the resulting pointAnnotation to the map.
             pointAnnotationManager?.create(pointAnnotationOptions)
         }
@@ -451,7 +451,7 @@ open class TurnByTurn(
     }
 
     fun getPinImageFromAsset(): String {
-     return FlutterMapboxNavigationPlugin.flutterAssets.getAssetFilePathBySubpath("assets/icons/helmet_pin.png");
+     return FlutterMapboxNavigationPlugin.flutterAssets.getAssetFilePathBySubpath(customPinPath!!);
     }
 
     val mapViewObserver: MapViewObserver = object : MapViewObserver() {
