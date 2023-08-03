@@ -7,33 +7,30 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.location.Location
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
+import androidx.viewbinding.ViewBindings
 import com.eopeter.fluttermapboxnavigation.databinding.NavigationActivityBinding
 import com.eopeter.fluttermapboxnavigation.models.MapBoxEvents
 import com.eopeter.fluttermapboxnavigation.models.MapBoxRouteProgressEvent
 import com.eopeter.fluttermapboxnavigation.models.Waypoint
 import com.eopeter.fluttermapboxnavigation.models.WaypointSet
-import com.eopeter.fluttermapboxnavigation.utilities.CustomInfoPanelEndNavButtonBinder
-import com.eopeter.fluttermapboxnavigation.utilities.PluginUtilities
+import com.eopeter.fluttermapboxnavigation.utilities.*
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.Gson
 import com.mapbox.maps.Style
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.geojson.Point
 import com.mapbox.maps.MapView
-import com.mapbox.maps.ViewAnnotationAnchor
-import com.mapbox.maps.extension.style.layers.getLayer
 import com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor
-import com.mapbox.maps.extension.style.layers.properties.generated.Visibility
+import com.mapbox.maps.plugin.annotation.AnnotationConfig
 import com.mapbox.maps.plugin.annotation.annotations
-import com.mapbox.maps.plugin.annotation.generated.CircleAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
-import com.mapbox.maps.plugin.annotation.generated.createCircleAnnotationManager
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
-import com.mapbox.maps.viewannotation.viewAnnotationOptions
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
 import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
 import com.mapbox.navigation.base.options.NavigationOptions
@@ -43,18 +40,16 @@ import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
 import com.mapbox.navigation.base.trip.model.RouteLegProgress
 import com.mapbox.navigation.base.trip.model.RouteProgress
-import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.arrival.ArrivalObserver
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.dropin.map.MapViewObserver
-import io.flutter.embedding.engine.plugins.FlutterPlugin
+import com.mapbox.navigation.dropin.R
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import java.io.File
 import java.util.*
 
 open class TurnByTurn(
@@ -131,7 +126,7 @@ open class TurnByTurn(
             val latitude = point["Latitude"] as Double
             val longitude = point["Longitude"] as Double
             val isSilent = point["IsSilent"] as Boolean
-            this.addedWaypoints.add(Waypoint(Point.fromLngLat(longitude, latitude),isSilent))
+            this.addedWaypoints.add(Waypoint(Point.fromLngLat(longitude, latitude), isSilent))
         }
         this.getRoute(this.context)
         result.success(true)
@@ -146,7 +141,7 @@ open class TurnByTurn(
                 .coordinatesList(this.addedWaypoints.coordinatesList())
                 .waypointIndicesList(this.addedWaypoints.waypointsIndices())
                 .waypointNamesList(this.addedWaypoints.waypointsNames())
-                .alternatives(true)
+                .alternatives(this.alternatives)
                 .build(),
             callback = object : NavigationRouterCallback {
                 override fun onRoutesReady(
@@ -166,7 +161,10 @@ open class TurnByTurn(
                         this.infoPanelEndNavigationButtonBinder =
                             CustomInfoPanelEndNavButtonBinder(MapboxNavigationApp.current()!!)
                     }
-                    createCustomPinView()
+
+                    if (!customPinPath.isNullOrEmpty()) {
+                        createCustomPinView()
+                    }
                 }
 
                 override fun onFailure(
@@ -191,10 +189,11 @@ open class TurnByTurn(
 
         myMapView?.annotations?.cleanup()
 
-        val pointAnnotationManager = annotationApi?.createPointAnnotationManager(myMapView!!)
+        val pointAnnotationManager = annotationApi?.createPointAnnotationManager(AnnotationConfig())
 
         for (wp in addedWaypoints.coordinatesList().drop(1).dropLast(1)) {
-            val stream = context.assets.open(getPinImageFromAsset())
+            var imagePath = getPinImageFromAsset()
+            val stream = context.assets.open(imagePath)
             var bitmap: Bitmap = BitmapFactory.decodeStream(stream)
             bitmap = Bitmap.createScaledBitmap(bitmap, 60, 60, true)
 
@@ -299,6 +298,22 @@ open class TurnByTurn(
         this@TurnByTurn.binding.navigationView.customizeViewOptions {
             mapStyleUriDay = this@TurnByTurn.mapStyleUrlDay
             mapStyleUriNight = this@TurnByTurn.mapStyleUrlNight
+
+            showSpeedLimit = arguments["showSpeedLimit"] as? Boolean
+            showRecenterActionButton = arguments["showRecenterActionButton"] as? Boolean
+            showRoadName = arguments["showRoadName"] as? Boolean
+            showCompassActionButton = arguments["showCompassActionButton"] as? Boolean
+            showActionButtons = arguments["showActionButtons"] as? Boolean
+        }
+
+        if ((arguments?.get("showInfoPanel") as? Boolean == false)) {
+            this@TurnByTurn.binding.navigationView.customizeViewOptions {
+                infoPanelForcedState = BottomSheetBehavior.STATE_HIDDEN
+            }
+        } else {
+            this@TurnByTurn.binding.navigationView.customizeViewOptions {
+                infoPanelForcedState = 0
+            }
         }
 
         this.initialLatitude = arguments["initialLatitude"] as? Double
@@ -451,7 +466,10 @@ open class TurnByTurn(
     }
 
     fun getPinImageFromAsset(): String {
-     return FlutterMapboxNavigationPlugin.flutterAssets.getAssetFilePathBySubpath(customPinPath!!);
+        var image =
+            FlutterMapboxNavigationPlugin.flutterAssets.getAssetFilePathBySubpath(customPinPath!!)
+
+        return image;
     }
 
     val mapViewObserver: MapViewObserver = object : MapViewObserver() {

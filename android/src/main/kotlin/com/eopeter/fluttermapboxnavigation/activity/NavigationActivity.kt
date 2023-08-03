@@ -42,8 +42,10 @@ import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
+import com.mapbox.navigation.dropin.EmptyBinder
 import com.mapbox.navigation.dropin.map.MapViewObserver
 import com.mapbox.navigation.dropin.navigationview.NavigationViewListener
+import com.mapbox.navigation.ui.base.lifecycle.UIBinder
 import com.mapbox.navigation.utils.internal.ifNonNull
 
 class NavigationActivity : AppCompatActivity() {
@@ -58,15 +60,15 @@ class NavigationActivity : AppCompatActivity() {
 
     private val navigationStateListener = object : NavigationViewListener() {
         override fun onFreeDrive() {
-
+            customizeViewBinders(shouldHide = true)
         }
 
         override fun onDestinationPreview() {
-
+            customizeViewBinders(shouldHide = true)
         }
 
         override fun onRoutePreview() {
-
+            customizeViewBinders(shouldHide = true)
         }
 
         override fun onActiveNavigation() {
@@ -187,6 +189,16 @@ class NavigationActivity : AppCompatActivity() {
         MapboxNavigationApp.current()?.unregisterLocationObserver(locationObserver)
         MapboxNavigationApp.current()?.unregisterRouteProgressObserver(routeProgressObserver)
         MapboxNavigationApp.current()?.unregisterArrivalObserver(arrivalObserver)
+    }
+
+    private fun customizeViewBinders(shouldHide: Boolean) {
+        val viewBinder = if (shouldHide) EmptyBinder() else UIBinder.USE_DEFAULT
+        binding.navigationView.customizeViewBinders {
+            roadNameBinder = viewBinder
+            speedLimitBinder = viewBinder
+            actionButtonsBinder = viewBinder
+
+        }
     }
 
     fun tryCancelNavigation() {

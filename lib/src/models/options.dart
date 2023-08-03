@@ -35,6 +35,12 @@ class MapBoxOptions {
     this.showEndOfRouteFeedback = true,
     this.enableOnMapTapCallback = false,
     this.customPinPath,
+    this.showInfoPanel = true,
+    this.showSpeedLimit = true,
+    this.showRecenterActionButton = true,
+    this.showRoadName = true,
+    this.showCompassActionButton = true,
+    this.showActionButtons = true,
   });
 
   /// The initial Latitude of the Map View
@@ -141,6 +147,30 @@ class MapBoxOptions {
   /// to where you tap on the map.
   bool? enableOnMapTapCallback;
 
+  /// Android only.
+  /// Show/hide Info Panel BottomSheet.
+  bool? showInfoPanel;
+
+  /// Android only.
+  /// Show/hide speed limit
+  bool? showSpeedLimit;
+
+  /// Android only.
+  /// Show/hide recenter button
+  bool? showRecenterActionButton;
+
+  /// Android only.
+  /// Show/hide Road name
+  bool? showRoadName;
+
+  /// Android only.
+  /// Show/hide compass button
+  bool? showCompassActionButton;
+
+  /// Android only.
+  /// Show/hide action button
+  bool? showActionButtons;
+
   /// This lets you customize the waypoint appearance by using an image from
   /// your Flutter project directly.
   /// Pass it the path from flutter project. E.g. `assets/icon/custom_icon.png`.
@@ -208,6 +238,13 @@ class MapBoxOptions {
     addIfNonNull('showEndOfRouteFeedback', showEndOfRouteFeedback);
     addIfNonNull('enableOnMapTapCallback', enableOnMapTapCallback);
     addIfNonNull('customPinPath', customPinPath);
+
+    addIfNonNull('showInfoPanel', showInfoPanel);
+    addIfNonNull('showSpeedLimit', showSpeedLimit);
+    addIfNonNull('showRecenterActionButton', showRecenterActionButton);
+    addIfNonNull('showRoadName', showRoadName);
+    addIfNonNull('showCompassActionButton', showCompassActionButton);
+    addIfNonNull('showActionButtons', showActionButtons);
 
     return optionsMap;
   }
