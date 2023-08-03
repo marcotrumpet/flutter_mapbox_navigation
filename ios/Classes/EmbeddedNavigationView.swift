@@ -164,6 +164,8 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
             navigationService.stop()
         }
         navigationMapView.removeRoutes()
+        navigationMapView.removeWaypoints()
+        navigationMapView!.mapView.viewAnnotations.removeAll()
         routeResponse = nil
         sendEvent(eventType: MapBoxEventType.navigation_cancelled)
     }
@@ -242,7 +244,7 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
         navigationMapView?.mapView.viewAnnotations.removeAll()
         
         if (_customPinPath != nil) {
-            for wp in _wayPoints.dropFirst().dropLast() {
+            for wp in _wayPoints.dropLast() {
                 let options = ViewAnnotationOptions(geometry: Point(wp.coordinate), allowOverlap: true, anchor: .center)
                 let annotationView = createCustomPinView()
                 

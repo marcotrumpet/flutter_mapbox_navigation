@@ -8,6 +8,7 @@ import com.eopeter.fluttermapboxnavigation.TurnByTurn
 import com.eopeter.fluttermapboxnavigation.databinding.NavigationActivityBinding
 import com.eopeter.fluttermapboxnavigation.models.MapBoxEvents
 import com.eopeter.fluttermapboxnavigation.utilities.PluginUtilities
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.geojson.Point
 import com.mapbox.maps.MapView
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
@@ -42,13 +43,27 @@ class EmbeddedNavigationMapView(
         initFlutterChannelHandlers()
         initNavigation()
 
-        if(!(this.arguments?.get("longPressDestinationEnabled") as Boolean)) {
+        if(!(this.arguments["longPressDestinationEnabled"] as Boolean)) {
             this.binding.navigationView.customizeViewOptions {
                 enableMapLongClickIntercept = false;
             }
         }
 
-        if((this.arguments?.get("enableOnMapTapCallback") as Boolean)) {
+        if((arguments?.get("showInfoPanel") as? Boolean == false)) {
+            this.binding.navigationView.customizeViewOptions {
+                infoPanelForcedState = BottomSheetBehavior.STATE_HIDDEN
+            }
+        }
+
+        this.binding.navigationView.customizeViewOptions {
+            showSpeedLimit = arguments["showSpeedLimit"] as? Boolean
+            showRecenterActionButton = arguments["showRecenterActionButton"] as? Boolean
+            showRoadName = arguments["showRoadName"] as? Boolean
+            showCompassActionButton = arguments["showCompassActionButton"] as? Boolean
+            showActionButtons = arguments["showActionButtons"] as? Boolean
+        }
+
+        if((this.arguments["enableOnMapTapCallback"] as Boolean)) {
             this.binding.navigationView.registerMapObserver(onMapClick)
         }
 
