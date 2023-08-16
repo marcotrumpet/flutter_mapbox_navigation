@@ -24,6 +24,8 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
 
     var _mapInitialized = false;
     var locationManager = CLLocationManager()
+    
+    var onTapGesture = UITapGestureRecognizer()
 
     private let passiveLocationManager = PassiveLocationManager()
     private lazy var passiveLocationProvider = PassiveLocationProvider(locationManager: passiveLocationManager)
@@ -39,6 +41,10 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
         self.eventChannel = FlutterEventChannel(name: "flutter_mapbox_navigation/\(viewId)/events", binaryMessenger: messenger)
 
         super.init()
+        
+        onTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        onTapGesture.numberOfTapsRequired = 1
+        onTapGesture.delegate = self
 
         self.eventChannel.setStreamHandler(self)
 
@@ -83,6 +89,9 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
             else if(call.method == "reCenter"){
                 //used to recenter map from user action during navigation
                 strongSelf.navigationMapView.navigationCamera.follow()
+            }
+            else if (call.method == "addCustomPin") {
+                strongSelf.addCustomPin(arguments: arguments, result: result)
             }
             else
             {
@@ -146,14 +155,50 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
             navigationMapView?.addGestureRecognizer(gesture)
         }
         
-        if _enableOnMapTapCallback {
-            let onTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
-            onTapGesture.numberOfTapsRequired = 1
-            onTapGesture.delegate = self
-            navigationMapView?.addGestureRecognizer(onTapGesture)
-        }
+        handleOnMMapTapCallback()
     }
 
+    func addCustomPin(arguments: NSDictionary?, result: @escaping FlutterResult) {
+        guard let oWayPoints = arguments?["wayPoints"] as? NSDictionary else {return}
+        
+        parseFlutterArguments(arguments: arguments)
+        
+        var locations = [Location]()
+        
+        var totalWayPoints = [Waypoint]()
+
+        for item in oWayPoints as NSDictionary
+        {
+            let point = item.value as! NSDictionary
+            guard let oName = point["Name"] as? String else {return}
+            guard let oLatitude = point["Latitude"] as? Double else {return}
+            guard let oLongitude = point["Longitude"] as? Double else {return}
+            let oIsSilent = point["IsSilent"] as? Bool ?? false
+            let order = point["Order"] as? Int
+            let location = Location(name: oName, latitude: oLatitude, longitude: oLongitude, order: order,isSilent: oIsSilent)
+            locations.append(location)
+        }
+        
+        for loc in locations
+        {
+            let location = Waypoint(coordinate: CLLocationCoordinate2D(latitude: loc.latitude!, longitude: loc.longitude!),
+                                    coordinateAccuracy: -1, name: loc.name)
+            location.separatesLegs = !loc.isSilent
+            totalWayPoints.append(location)
+        }
+        
+        if (_customPinPath != nil) {
+            for wp in totalWayPoints {
+                let options = ViewAnnotationOptions(geometry: Point(wp.coordinate), allowOverlap: true, anchor: .center)
+                let annotationView = createCustomPinView()
+                
+                if (annotationView != nil) {
+                    try? navigationMapView?.mapView.viewAnnotations.add(annotationView!, options: options)
+                }
+            }
+        }
+    }
+    
     func clearRoute(arguments: NSDictionary?, result: @escaping FlutterResult)
     {
         if routeResponse == nil
@@ -287,6 +332,9 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
 
     func startEmbeddedNavigation(arguments: NSDictionary?, result: @escaping FlutterResult) {
         guard let response = self.routeResponse else { return }
+        
+        parseFlutterArguments(arguments: arguments)
+        
         let navLocationManager = self._simulateRoute ? SimulatedLocationManager(route: response.routes!.first!) : NavigationLocationManager()
         navigationService = MapboxNavigationService(routeResponse: response,
                                                             routeIndex: selectedRouteIndex,
@@ -331,7 +379,9 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
                 }
             }
         }
-
+        
+        handleOnMMapTapCallback()
+        
         let flutterViewController = UIApplication.shared.delegate?.window?!.rootViewController as! FlutterViewController
         flutterViewController.addChild(_navigationViewController!)
 
@@ -341,6 +391,15 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
         flutterViewController.didMove(toParent: flutterViewController)
         result(true)
 
+    }
+    
+    func handleOnMMapTapCallback() {
+        
+        if _enableOnMapTapCallback {
+            navigationMapView?.addGestureRecognizer(onTapGesture)
+        } else {
+            navigationMapView?.removeGestureRecognizer(onTapGesture)
+        }
     }
 
     func constraintsWithPaddingBetween(holderView: UIView, topView: UIView, padding: CGFloat) {
@@ -380,7 +439,7 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
 
         let navigationViewportDataSource = NavigationViewportDataSource(navigationMapView.mapView, viewportDataSourceType: .raw)
         navigationViewportDataSource.options.followingCameraOptions.zoomUpdatesAllowed = false
-        navigationViewportDataSource.followingMobileCamera.zoom = 13.0
+        navigationViewportDataSource.followingMobileCamera.zoom = _zoom
         navigationViewportDataSource.followingMobileCamera.pitch = 15
         navigationViewportDataSource.followingMobileCamera.padding = .zero
         //navigationViewportDataSource.followingMobileCamera.center = mapView?.centerCoordinate
@@ -480,6 +539,11 @@ extension FlutterMapboxNavigationView : UIGestureRecognizerDelegate {
     
     @objc func handleTap(_ gesture: UITapGestureRecognizer) {
         guard gesture.state == .ended else {return}
+        
+        if (!_enableOnMapTapCallback) {
+            return
+        }
+        
         let location = navigationMapView.mapView.mapboxMap.coordinate(for: gesture.location(in: navigationMapView.mapView))
         let waypoint: Encodable = [
             "latitude" : location.latitude,

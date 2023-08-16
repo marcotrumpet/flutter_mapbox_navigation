@@ -29,6 +29,16 @@ class WayPoint {
     }
   }
 
+  /// Create json from waypoint
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'latitude': latitude,
+      'longitude': longitude,
+      'isSilent': isSilent
+    };
+  }
+
   /// Waypoint [name]
   String? name;
 

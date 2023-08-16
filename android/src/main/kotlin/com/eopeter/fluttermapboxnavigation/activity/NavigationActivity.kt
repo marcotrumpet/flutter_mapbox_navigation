@@ -425,6 +425,9 @@ class NavigationActivity : AppCompatActivity() {
         }
 
         override fun onMapClick(point: Point): Boolean {
+            if (!FlutterMapboxNavigationPlugin.enableOnMapTapCallback) {
+                return false
+            }
             var waypoint = mapOf<String, String>(
                 Pair("latitude", point.latitude().toString()),
                 Pair("longitude", point.longitude().toString())

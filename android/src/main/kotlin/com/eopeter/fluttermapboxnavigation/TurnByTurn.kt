@@ -9,10 +9,7 @@ import android.graphics.BitmapFactory
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
-import androidx.viewbinding.ViewBindings
 import com.eopeter.fluttermapboxnavigation.databinding.NavigationActivityBinding
 import com.eopeter.fluttermapboxnavigation.models.MapBoxEvents
 import com.eopeter.fluttermapboxnavigation.models.MapBoxRouteProgressEvent
@@ -21,11 +18,11 @@ import com.eopeter.fluttermapboxnavigation.models.WaypointSet
 import com.eopeter.fluttermapboxnavigation.utilities.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.Gson
-import com.mapbox.maps.Style
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.geojson.Point
 import com.mapbox.maps.MapView
+import com.mapbox.maps.Style
 import com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor
 import com.mapbox.maps.plugin.annotation.AnnotationConfig
 import com.mapbox.maps.plugin.annotation.annotations
@@ -46,10 +43,10 @@ import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.dropin.map.MapViewObserver
-import com.mapbox.navigation.dropin.R
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import java.io.InputStream
 import java.util.*
 
 open class TurnByTurn(
@@ -110,7 +107,47 @@ open class TurnByTurn(
             "getDurationRemaining" -> {
                 result.success(this.durationRemaining)
             }
+            "addCustomPin" -> {
+                this.addCustomPin(methodCall, result)
+            }
             else -> result.notImplemented()
+        }
+    }
+
+    private fun addCustomPin(methodCall: MethodCall, result: MethodChannel.Result) {
+        val totalWayPoints = WaypointSet()
+
+        val arguments = methodCall.arguments as? Map<*, *>
+        if (arguments != null) this.setOptions(arguments)
+
+        val points = arguments?.get("wayPoints") as HashMap<*, *>
+        for (item in points) {
+            val point = item.value as HashMap<*, *>
+            val latitude = point["Latitude"] as Double
+            val longitude = point["Longitude"] as Double
+            val isSilent = point["IsSilent"] as Boolean
+            totalWayPoints.add(Waypoint(Point.fromLngLat(longitude, latitude), isSilent))
+        }
+
+        val annotationApi = myMapView?.annotations
+
+        myMapView?.annotations?.cleanup()
+
+        val pointAnnotationManager = annotationApi?.createPointAnnotationManager(AnnotationConfig())
+
+        for (wp in totalWayPoints.coordinatesList()) {
+            val imagePath = getPinImageFromAsset()
+            print("diosantocazzo $imagePath")
+            val stream = context.assets.open(imagePath)
+            var bitmap: Bitmap = BitmapFactory.decodeStream(stream)
+            bitmap = Bitmap.createScaledBitmap(bitmap, 60, 60, false)
+
+            val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
+                .withPoint(wp)
+                .withIconImage(bitmap)
+                .withIconAnchor(IconAnchor.CENTER)
+            // Add the resulting pointAnnotation to the map.
+            pointAnnotationManager?.create(pointAnnotationOptions)
         }
     }
 
@@ -163,7 +200,7 @@ open class TurnByTurn(
                     }
 
                     if (!customPinPath.isNullOrEmpty()) {
-                        createCustomPinView()
+                        createCustomPinView(addedWaypoints)
                     }
                 }
 
@@ -184,18 +221,18 @@ open class TurnByTurn(
         )
     }
 
-    private fun createCustomPinView() {
+    private fun createCustomPinView(wayPoints: WaypointSet) {
         val annotationApi = myMapView?.annotations
 
         myMapView?.annotations?.cleanup()
 
         val pointAnnotationManager = annotationApi?.createPointAnnotationManager(AnnotationConfig())
 
-        for (wp in addedWaypoints.coordinatesList().drop(1).dropLast(1)) {
-            var imagePath = getPinImageFromAsset()
+        for (wp in wayPoints.coordinatesList().dropLast(1)) {
+            val imagePath = getPinImageFromAsset()
             val stream = context.assets.open(imagePath)
             var bitmap: Bitmap = BitmapFactory.decodeStream(stream)
-            bitmap = Bitmap.createScaledBitmap(bitmap, 60, 60, true)
+            bitmap = Bitmap.createScaledBitmap(bitmap, 60, 60, false)
 
             val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
                 .withPoint(wp)
@@ -366,7 +403,7 @@ open class TurnByTurn(
 
         val onMapTap = arguments["enableOnMapTapCallback"] as? Boolean
         if (onMapTap != null) {
-            this.enableOnMapTapCallback = onMapTap
+            FlutterMapboxNavigationPlugin.enableOnMapTapCallback = onMapTap
         }
 
         val customPinPath = arguments["customPinPath"] as? String
@@ -434,7 +471,7 @@ open class TurnByTurn(
     private var voiceInstructionsEnabled = true
     private var bannerInstructionsEnabled = true
     private var longPressDestinationEnabled = true
-    private var enableOnMapTapCallback = false
+//    private var enableOnMapTapCallback = false
     private var animateBuildRoute = true
     private var isOptimized = false
     var customPinPath: String? = null
@@ -466,10 +503,15 @@ open class TurnByTurn(
     }
 
     fun getPinImageFromAsset(): String {
-        var image =
-            FlutterMapboxNavigationPlugin.flutterAssets.getAssetFilePathBySubpath(customPinPath!!)
+        try {
+            var image =
+                FlutterMapboxNavigationPlugin.flutterAssets.getAssetFilePathBySubpath(customPinPath!!)
 
-        return image;
+            return image
+        } catch (_: java.lang.Exception) {
+            return ""
+        }
+
     }
 
     val mapViewObserver: MapViewObserver = object : MapViewObserver() {
@@ -514,6 +556,7 @@ open class TurnByTurn(
 
         override fun onWaypointArrival(routeProgress: RouteProgress) {
             // not impl
+            routeProgress.currentLegProgress?.legDestination
         }
     }
 
