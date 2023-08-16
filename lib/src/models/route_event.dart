@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_dynamic_calls
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -31,6 +33,14 @@ class RouteEvent {
       final json =
           Platform.isAndroid ? dataJson : jsonDecode(dataJson as String);
       data = WayPoint.fromJson(json as Map<String, dynamic>);
+    } else if (eventType == MapBoxEvent.on_arrival) {
+      final json =
+          Platform.isAndroid ? dataJson : jsonDecode(dataJson as String);
+      data = WayPoint(
+        name: json['name'] as String,
+        latitude: json['location'][1] as double,
+        longitude: json['location'][0] as double,
+      );
     } else {
       data = jsonEncode(dataJson);
     }

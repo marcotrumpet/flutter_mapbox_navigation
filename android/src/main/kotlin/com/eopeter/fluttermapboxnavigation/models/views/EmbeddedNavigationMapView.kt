@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.view.View
+import com.eopeter.fluttermapboxnavigation.FlutterMapboxNavigationPlugin
 import com.eopeter.fluttermapboxnavigation.TurnByTurn
 import com.eopeter.fluttermapboxnavigation.databinding.NavigationActivityBinding
 import com.eopeter.fluttermapboxnavigation.models.MapBoxEvents
@@ -67,6 +68,8 @@ class EmbeddedNavigationMapView(
             this.binding.navigationView.registerMapObserver(onMapClick)
         }
 
+        FlutterMapboxNavigationPlugin.enableOnMapTapCallback = this.arguments["enableOnMapTapCallback"] as Boolean
+        FlutterMapboxNavigationPlugin.customPinPath = this.arguments["customPinPath"] as? String
         this.binding.navigationView.registerMapObserver(mapViewObserver);
     }
 
@@ -96,6 +99,10 @@ class EmbeddedNavigationMapView(
         }
 
         override fun onMapClick(point: Point): Boolean {
+            if (!FlutterMapboxNavigationPlugin.enableOnMapTapCallback) {
+                return false
+            }
+
             var waypoint = mapOf<String, String>(
                 Pair("latitude", point.latitude().toString()),
                 Pair("longitude", point.longitude().toString())

@@ -78,7 +78,7 @@ class FlutterMapboxNavigationPlugin : FlutterPlugin, MethodCallHandler,
         var durationRemaining: Double? = null
         var platformViewRegistry: PlatformViewRegistry? = null
         var binaryMessenger: BinaryMessenger? = null
-        var customPinPathcustomPinPath: String? = null
+        var customPinPath: String? = null
 
         var viewId = "FlutterMapboxNavigationView"
 
@@ -158,9 +158,9 @@ class FlutterMapboxNavigationPlugin : FlutterPlugin, MethodCallHandler,
             enableOnMapTapCallback = onMapTap
         }
 
-        var customPinPath = arguments?.get("customPinPath") as? Boolean
+        var pinPath = arguments?.get("customPinPath") as? String
         if (customPinPath != null) {
-            customPinPath = customPinPath
+            customPinPath = pinPath
         }
 
         val language = arguments?.get("language") as? String

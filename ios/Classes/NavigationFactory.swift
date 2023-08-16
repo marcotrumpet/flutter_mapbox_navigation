@@ -459,7 +459,21 @@ extension NavigationFactory : NavigationViewControllerDelegate {
     }
     
     public func navigationViewController(_ navigationViewController: NavigationViewController, didArriveAt waypoint: Waypoint) -> Bool {
-        sendEvent(eventType: MapBoxEventType.on_arrival, data: "true")
+        
+        do {
+            let encodedData = try JSONEncoder().encode(waypoint)
+            let jsonString = String(data: encodedData,
+                                    encoding: .utf8)
+            
+            if (jsonString?.isEmpty ?? true) {
+                return true
+            }
+            
+            sendEvent(eventType: MapBoxEventType.on_arrival, data: jsonString!)
+        } catch {
+            return true
+        }
+        
         if(!_wayPoints.isEmpty && IsMultipleUniqueRoutes)
         {
             continueNavigationWithWayPoints(wayPoints: [getLastKnownLocation(), _wayPoints.remove(at: 0)])
@@ -468,8 +482,6 @@ extension NavigationFactory : NavigationViewControllerDelegate {
         
         return true
     }
-    
-    
     
     public func navigationViewControllerDidDismiss(_ navigationViewController: NavigationViewController, byCanceling canceled: Bool) {
         if(canceled)
