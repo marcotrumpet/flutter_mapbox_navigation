@@ -14,39 +14,39 @@ class SampleNavigationApp extends StatefulWidget {
 class _SampleNavigationAppState extends State<SampleNavigationApp> {
   String? _platformVersion;
   String? _instruction;
-  final _origin = WayPoint(
+  final _origin = const WayPoint(
       name: "Way Point 1",
       latitude: 38.9111117447887,
       longitude: -77.04012393951416,
       isSilent: true);
-  final _stop1 = WayPoint(
+  final _stop1 = const WayPoint(
       name: "Way Point 2",
       latitude: 38.91113678979344,
       longitude: -77.03847169876099,
       isSilent: true);
-  final _stop2 = WayPoint(
+  final _stop2 = const WayPoint(
       name: "Way Point 3",
       latitude: 38.91040213277608,
       longitude: -77.03848242759705,
       isSilent: false);
-  final _stop3 = WayPoint(
+  final _stop3 = const WayPoint(
       name: "Way Point 4",
       latitude: 38.909650771013034,
       longitude: -77.03850388526917,
       isSilent: true);
-  final _destination = WayPoint(
+  final _destination = const WayPoint(
       name: "Way Point 5",
       latitude: 38.90894949285854,
       longitude: -77.03651905059814,
       isSilent: false);
 
-  final _home = WayPoint(
+  final _home = const WayPoint(
       name: "Home",
       latitude: 37.77440680146262,
       longitude: -122.43539772352648,
       isSilent: false);
 
-  final _store = WayPoint(
+  final _store = const WayPoint(
       name: "Store",
       latitude: 37.76556957793795,
       longitude: -122.42409811526268,
@@ -166,7 +166,7 @@ class _SampleNavigationAppState extends State<SampleNavigationApp> {
                                     units: VoiceUnits.metric));
                             //after 10 seconds add a new stop
                             await Future.delayed(const Duration(seconds: 10));
-                            var stop = WayPoint(
+                            var stop = const WayPoint(
                                 name: "Gas Station",
                                 latitude: 38.911176544398,
                                 longitude: -77.04014366543564,

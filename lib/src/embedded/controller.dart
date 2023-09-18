@@ -83,7 +83,7 @@ class MapBoxNavigationViewController {
     }
 
     var i = 0;
-    final wayPointMap = {for (var e in pointList) i++: e};
+    final wayPointMap = {for (final e in pointList) i++: e};
 
     var args = <String, dynamic>{};
     if (options != null) args = options.toMap();
@@ -128,7 +128,7 @@ class MapBoxNavigationViewController {
     }
 
     var i = 0;
-    final wayPointMap = {for (var e in pointList) i++: e};
+    final wayPointMap = {for (final e in pointList) i++: e};
 
     var args = <String, dynamic>{};
     if (options != null) args = options.toMap();
