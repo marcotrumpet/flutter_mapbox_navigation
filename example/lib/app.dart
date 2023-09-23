@@ -80,7 +80,6 @@ class _SampleNavigationAppState extends State<SampleNavigationApp> {
     if (!mounted) return;
 
     _navigationOption = MapBoxNavigation.instance.getDefaultOptions();
-    _navigationOption.simulateRoute = true;
     //_navigationOption.initialLatitude = 36.1175275;
     //_navigationOption.initialLongitude = -115.1839524;
     MapBoxNavigation.instance.registerRouteEventListener(_onEmbeddedRouteEvent);
@@ -158,7 +157,7 @@ class _SampleNavigationAppState extends State<SampleNavigationApp> {
 
                             MapBoxNavigation.instance.startNavigation(
                                 wayPoints: wayPoints,
-                                options: MapBoxOptions(
+                                options: const MapBoxOptions(
                                     mode: MapBoxNavigationMode.driving,
                                     simulateRoute: true,
                                     language: "en",

@@ -60,7 +60,7 @@ class MapBoxNavigationView extends StatelessWidget {
             id: params.id,
             viewType: viewType,
             layoutDirection: TextDirection.ltr,
-            creationParams: options!.toMap(),
+            creationParams: options!.toJson(),
             creationParamsCodec: const StandardMessageCodec(),
             onFocus: () {
               params.onFocusChanged(true);
@@ -75,7 +75,7 @@ class MapBoxNavigationView extends StatelessWidget {
       return UiKitView(
         viewType: 'FlutterMapboxNavigationView',
         onPlatformViewCreated: _onPlatformViewCreated,
-        creationParams: options!.toMap(),
+        creationParams: options!.toJson(),
         creationParamsCodec: _decoder,
       );
     } else {

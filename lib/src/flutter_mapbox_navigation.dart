@@ -14,7 +14,7 @@ class MapBoxNavigation {
   /// get current instance of this class
   static MapBoxNavigation get instance => _instance;
 
-  MapBoxOptions _defaultOptions = MapBoxOptions(
+  MapBoxOptions _defaultOptions = const MapBoxOptions(
     zoom: 15,
     tilt: 0,
     bearing: 0,

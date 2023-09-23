@@ -359,7 +359,13 @@ class NavigationActivity : AppCompatActivity() {
     private val arrivalObserver: ArrivalObserver = object : ArrivalObserver {
         override fun onFinalDestinationArrival(routeProgress: RouteProgress) {
             isNavigationInProgress = false
-            sendEvent(MapBoxEvents.ON_ARRIVAL)
+            val json = JSONObject();
+            json.put("location", routeProgress.currentLegProgress?.legDestination?.location?.coordinates())
+            json.put("name", routeProgress.currentLegProgress?.legDestination?.name)
+            sendEvent(
+                MapBoxEvents.ON_ARRIVAL,
+                json.toString()
+            )
         }
 
         override fun onNextRouteLegStart(routeLegProgress: RouteLegProgress) {
@@ -367,7 +373,13 @@ class NavigationActivity : AppCompatActivity() {
         }
 
         override fun onWaypointArrival(routeProgress: RouteProgress) {
-
+            val json = JSONObject();
+            json.put("location", routeProgress.currentLegProgress?.legDestination?.location?.coordinates())
+            json.put("name", routeProgress.currentLegProgress?.legDestination?.name)
+            sendEvent(
+                MapBoxEvents.ON_ARRIVAL,
+                json.toString()
+            )
         }
     }
 

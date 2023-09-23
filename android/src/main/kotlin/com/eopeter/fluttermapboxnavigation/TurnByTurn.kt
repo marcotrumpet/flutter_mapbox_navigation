@@ -46,6 +46,7 @@ import com.mapbox.navigation.dropin.map.MapViewObserver
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import org.json.JSONObject
 import java.io.InputStream
 import java.util.*
 
@@ -179,6 +180,7 @@ open class TurnByTurn(
                 .waypointIndicesList(this.addedWaypoints.waypointsIndices())
                 .waypointNamesList(this.addedWaypoints.waypointsNames())
                 .alternatives(this.alternatives)
+                .excludeList(this.exclusions)
                 .build(),
             callback = object : NavigationRouterCallback {
                 override fun onRoutesReady(
@@ -386,6 +388,11 @@ open class TurnByTurn(
             this.alternatives = altRoute
         }
 
+        val exc = arguments["exclude"] as? List<String>
+        if (altRoute != null) {
+            this.exclusions = exc
+        }
+
         val voiceEnabled = arguments["voiceInstructionsEnabled"] as? Boolean
         if (voiceEnabled != null) {
             this.voiceInstructionsEnabled = voiceEnabled
@@ -465,6 +472,7 @@ open class TurnByTurn(
     private var durationRemaining: Double? = null
 
     private var alternatives = true
+    private var exclusions: List<String>? = null
 
     var allowsUTurnAtWayPoints = false
     var enableRefresh = false
@@ -547,7 +555,13 @@ open class TurnByTurn(
 
     private val arrivalObserver: ArrivalObserver = object : ArrivalObserver {
         override fun onFinalDestinationArrival(routeProgress: RouteProgress) {
-            PluginUtilities.sendEvent(MapBoxEvents.ON_ARRIVAL)
+            val json = JSONObject();
+            json.put("location", routeProgress.currentLegProgress?.legDestination?.location?.coordinates())
+            json.put("name", routeProgress.currentLegProgress?.legDestination?.name)
+            PluginUtilities.sendEvent(
+                MapBoxEvents.ON_ARRIVAL,
+                json.toString()
+            )
         }
 
         override fun onNextRouteLegStart(routeLegProgress: RouteLegProgress) {
@@ -555,8 +569,13 @@ open class TurnByTurn(
         }
 
         override fun onWaypointArrival(routeProgress: RouteProgress) {
-            // not impl
-            routeProgress.currentLegProgress?.legDestination
+            val json = JSONObject();
+            json.put("location", routeProgress.currentLegProgress?.legDestination?.location?.coordinates())
+            json.put("name", routeProgress.currentLegProgress?.legDestination?.name)
+            PluginUtilities.sendEvent(
+                MapBoxEvents.ON_ARRIVAL,
+                json.toString()
+            )
         }
     }
 

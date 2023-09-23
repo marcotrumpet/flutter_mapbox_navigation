@@ -36,10 +36,20 @@ class RouteEvent {
     } else if (eventType == MapBoxEvent.on_arrival) {
       final json =
           Platform.isAndroid ? dataJson : jsonDecode(dataJson as String);
+      late List<double> location;
+
+      if (Platform.isAndroid) {
+        location = (jsonDecode(json['location'] as String) as List)
+            .map((e) => e as double)
+            .toList();
+      } else {
+        location = (json['location'] as List).map((e) => e as double).toList();
+      }
+
       data = WayPoint(
         name: json['name'] as String,
-        latitude: json['location'][1] as double,
-        longitude: json['location'][0] as double,
+        latitude: location[1],
+        longitude: location[0],
       );
     } else {
       data = jsonEncode(dataJson);

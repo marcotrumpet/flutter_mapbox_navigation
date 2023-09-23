@@ -1,5 +1,6 @@
 export 'event_data.dart';
 export 'events.dart';
+export 'exclusion.dart';
 export 'feedback.dart';
 export 'navmode.dart';
 export 'options.dart';

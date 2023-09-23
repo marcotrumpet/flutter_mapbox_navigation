@@ -47,7 +47,7 @@ class MethodChannelFlutterMapboxNavigation
   @override
   Future<bool?> startFreeDrive(MapBoxOptions options) async {
     _routeEventSubscription = routeEventsListener!.listen(_onProgressData);
-    final args = options.toMap();
+    final args = options.toJson();
     final result = await methodChannel.invokeMethod('startFreeDrive', args);
     if (result is bool) return result;
     log(result.toString());
@@ -70,7 +70,7 @@ class MethodChannelFlutterMapboxNavigation
     var i = 0;
     final wayPointMap = {for (final e in pointList) i++: e};
 
-    final args = options.toMap();
+    final args = options.toJson();
     args['wayPoints'] = wayPointMap;
 
     _routeEventSubscription = routeEventsListener!.listen(_onProgressData);

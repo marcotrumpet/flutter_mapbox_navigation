@@ -86,7 +86,7 @@ class MapBoxNavigationViewController {
     final wayPointMap = {for (final e in pointList) i++: e};
 
     var args = <String, dynamic>{};
-    if (options != null) args = options.toMap();
+    if (options != null) args = options.toJson();
     args['wayPoints'] = wayPointMap;
 
     _routeEventSubscription = _streamRouteEvent!.listen(_onProgressData);
@@ -131,7 +131,7 @@ class MapBoxNavigationViewController {
     final wayPointMap = {for (final e in pointList) i++: e};
 
     var args = <String, dynamic>{};
-    if (options != null) args = options.toMap();
+    if (options != null) args = options.toJson();
     args['wayPoints'] = wayPointMap;
 
     _routeEventSubscription = _streamRouteEvent!.listen(_onProgressData);
@@ -153,14 +153,14 @@ class MapBoxNavigationViewController {
   /// Starts Free Drive Mode
   Future<bool?> startFreeDrive({MapBoxOptions? options}) async {
     Map<String, dynamic>? args;
-    if (options != null) args = options.toMap();
+    if (options != null) args = options.toJson();
     return _methodChannel.invokeMethod('startFreeDrive', args);
   }
 
   /// Starts the Navigation
   Future<bool?> startNavigation({MapBoxOptions? options}) async {
     Map<String, dynamic>? args;
-    if (options != null) args = options.toMap();
+    if (options != null) args = options.toJson();
     //_routeEventSubscription = _streamRouteEvent.listen(_onProgressData);
     return _methodChannel.invokeMethod('startNavigation', args);
   }
