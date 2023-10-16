@@ -41,6 +41,7 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
     var _showEndOfRouteFeedback = true
     var _enableOnMapTapCallback = false
     var _customPinPath: String?
+    var _exclusions: [String] = []
     var navigationDirections: Directions?
     
     func addWayPoints(arguments: NSDictionary?, result: @escaping FlutterResult)
@@ -234,6 +235,7 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
         
         options.distanceMeasurementSystem = _voiceUnits == "imperial" ? .imperial : .metric
         options.locale = Locale(identifier: _language)
+        options.roadClassesToAvoid = RoadClasses(descriptions:_exclusions) ?? []
         _options = options
     }
     
@@ -256,6 +258,7 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
         _longPressDestinationEnabled = arguments?["longPressDestinationEnabled"] as? Bool ?? _longPressDestinationEnabled
         _alternatives = arguments?["alternatives"] as? Bool ?? _alternatives
         _customPinPath = arguments?["customPinPath"] as? String ?? _customPinPath
+        _exclusions = arguments?["exclude"] as? [String] ?? _exclusions
     }
     
     
