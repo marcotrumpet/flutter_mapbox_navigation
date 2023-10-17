@@ -138,7 +138,6 @@ open class TurnByTurn(
 
         for (wp in totalWayPoints.coordinatesList()) {
             val imagePath = getPinImageFromAsset()
-            print("diosantocazzo $imagePath")
             val stream = context.assets.open(imagePath)
             var bitmap: Bitmap = BitmapFactory.decodeStream(stream)
             bitmap = Bitmap.createScaledBitmap(bitmap, 60, 60, false)

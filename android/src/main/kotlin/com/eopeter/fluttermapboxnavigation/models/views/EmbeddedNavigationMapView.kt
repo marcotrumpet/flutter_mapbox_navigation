@@ -70,6 +70,7 @@ class EmbeddedNavigationMapView(
 
         FlutterMapboxNavigationPlugin.enableOnMapTapCallback = this.arguments["enableOnMapTapCallback"] as Boolean
         FlutterMapboxNavigationPlugin.customPinPath = this.arguments["customPinPath"] as? String
+        FlutterMapboxNavigationPlugin.exclusions = this.arguments["exclude"] as? List<String>
         this.binding.navigationView.registerMapObserver(mapViewObserver);
     }
 

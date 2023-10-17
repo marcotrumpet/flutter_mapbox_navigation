@@ -82,6 +82,8 @@ class FlutterMapboxNavigationPlugin : FlutterPlugin, MethodCallHandler,
 
         var viewId = "FlutterMapboxNavigationView"
 
+        var exclusions: List<String>? = null
+
         lateinit var flutterAssets: FlutterPlugin.FlutterAssets;
     }
 
@@ -141,6 +143,11 @@ class FlutterMapboxNavigationPlugin : FlutterPlugin, MethodCallHandler,
         val alternateRoutes = arguments?.get("alternatives") as? Boolean
         if (alternateRoutes != null) {
             showAlternateRoutes = alternateRoutes
+        }
+
+        val exclusionsList = arguments?.get("exclude") as? List<String>
+        if (exclusionsList != null) {
+            exclusions = exclusionsList
         }
 
         val simulated = arguments?.get("simulateRoute") as? Boolean
