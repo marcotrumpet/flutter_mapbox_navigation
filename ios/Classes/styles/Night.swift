@@ -12,12 +12,11 @@ class CustomNightStyle: NightStyle {
 
     init(url: String?){
         super.init()
-        initStyle()
-        if(url != nil)
-        {
-            mapStyleURL = URL(string: url!) ?? URL(string: StyleURI.navigationNight.rawValue)!
-            previewMapStyleURL = mapStyleURL
-        }
+       
+        mapStyleURL = URL(string: url ?? StyleURI.navigationNight.rawValue)!
+        previewMapStyleURL = mapStyleURL
+        
+        styleType = .night
     }
 
     func initStyle()
