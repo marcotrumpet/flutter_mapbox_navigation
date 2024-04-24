@@ -140,15 +140,15 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
                 else
                 {
                     let navigationService = MapboxNavigationService(routeResponse: response, routeIndex: 0, routeOptions: strongSelf._options!, simulating: simulationMode)
-                    var dayStyle = CustomDayStyle()
+                    var dayStyle: CustomDayStyle?
                     if(strongSelf._mapStyleUrlDay != nil){
                         dayStyle = CustomDayStyle(url: strongSelf._mapStyleUrlDay)
                     }
-                    let nightStyle = CustomNightStyle()
+                    var nightStyle: CustomNightStyle?
                     if(strongSelf._mapStyleUrlNight != nil){
-                        nightStyle.mapStyleURL = URL(string: strongSelf._mapStyleUrlNight!)!
+                        nightStyle = CustomNightStyle(url: strongSelf._mapStyleUrlNight)
                     }
-                    let navigationOptions = NavigationOptions(styles: [dayStyle, nightStyle], navigationService: navigationService)
+                    let navigationOptions = NavigationOptions(styles: [dayStyle ?? CustomDayStyle(), nightStyle ?? CustomNightStyle()], navigationService: navigationService)
                     if (isUpdatingWaypoints) {
                         strongSelf._navigationViewController?.navigationService.router.updateRoute(with: IndexedRouteResponse(routeResponse: response, routeIndex: 0), routeOptions: strongSelf._options) { success in
                             if (success) {
@@ -193,7 +193,25 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
             }
         }
         let flutterViewController = UIApplication.shared.delegate?.window??.rootViewController as! FlutterViewController
-        flutterViewController.present(self._navigationViewController!, animated: true, completion: nil)
+        flutterViewController.present(self._navigationViewController!, animated: true, completion:
+                                        {
+            
+            if #available(iOS 13.0, *) {
+                let customButton = FloatingButton.rounded(image: UIImage(systemName: "camera.fill"),type: .custom)
+                
+                customButton.addTarget(self, action:#selector(self.openCamera), for: .touchUpInside)
+                
+                self._navigationViewController!.floatingButtons?.append(customButton)
+            } else {
+                // Fallback on earlier versions
+            }
+            
+        }
+        )
+    }
+    
+    @objc func openCamera(sender: UIButton!) {
+        self.sendEvent(eventType: MapBoxEventType.open_camera)
     }
     
     func createCustomPinView() -> UIView? {

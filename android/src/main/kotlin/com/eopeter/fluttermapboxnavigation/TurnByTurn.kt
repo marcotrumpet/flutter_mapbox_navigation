@@ -9,6 +9,8 @@ import android.graphics.BitmapFactory
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import androidx.annotation.DrawableRes
 import androidx.lifecycle.LifecycleOwner
 import com.eopeter.fluttermapboxnavigation.databinding.NavigationActivityBinding
 import com.eopeter.fluttermapboxnavigation.models.MapBoxEvents
@@ -42,7 +44,9 @@ import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
+import com.mapbox.navigation.dropin.actionbutton.ActionButtonDescription
 import com.mapbox.navigation.dropin.map.MapViewObserver
+import com.mapbox.navigation.ui.base.view.MapboxExtendableButton
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel

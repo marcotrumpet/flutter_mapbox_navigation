@@ -11,12 +11,11 @@ class CustomDayStyle: DayStyle {
 
     init(url: String?){
         super.init()
-        initStyle()
-        if(url != nil)
-        {
-            mapStyleURL = URL(string: url!) ?? URL(string: StyleURI.navigationDay.rawValue)!
-            previewMapStyleURL = mapStyleURL
-        }
+     
+        mapStyleURL = URL(string: url ?? StyleURI.navigationDay.rawValue)!
+        previewMapStyleURL = mapStyleURL
+        
+        styleType = .day
     }
 
     func initStyle()

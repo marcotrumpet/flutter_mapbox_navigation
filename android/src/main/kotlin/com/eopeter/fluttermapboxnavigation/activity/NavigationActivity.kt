@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.location.Location
 import android.os.Bundle
+import android.view.View
+import androidx.annotation.DrawableRes
 
 import org.json.JSONObject
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +19,7 @@ import com.eopeter.fluttermapboxnavigation.models.MapBoxRouteProgressEvent
 import com.eopeter.fluttermapboxnavigation.models.Waypoint
 import com.eopeter.fluttermapboxnavigation.models.WaypointSet
 import com.eopeter.fluttermapboxnavigation.utilities.CustomInfoPanelEndNavButtonBinder
+import com.eopeter.fluttermapboxnavigation.utilities.CustomOpenCameraButtonBinder
 import com.eopeter.fluttermapboxnavigation.utilities.PluginUtilities
 import com.eopeter.fluttermapboxnavigation.utilities.PluginUtilities.Companion.sendEvent
 import com.google.gson.Gson
@@ -43,9 +46,11 @@ import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.dropin.EmptyBinder
+import com.mapbox.navigation.dropin.actionbutton.ActionButtonDescription
 import com.mapbox.navigation.dropin.map.MapViewObserver
 import com.mapbox.navigation.dropin.navigationview.NavigationViewListener
 import com.mapbox.navigation.ui.base.lifecycle.UIBinder
+import com.mapbox.navigation.ui.base.view.MapboxExtendableButton
 import com.mapbox.navigation.utils.internal.ifNonNull
 
 class NavigationActivity : AppCompatActivity() {
@@ -113,6 +118,7 @@ class NavigationActivity : AppCompatActivity() {
         binding.navigationView.customizeViewBinders {
             infoPanelEndNavigationButtonBinder =
                 CustomInfoPanelEndNavButtonBinder(MapboxNavigationApp.current()!!)
+            actionButtonsBinder = CustomOpenCameraButtonBinder(MapboxNavigationApp.current()!!)
         }
 
         MapboxNavigationApp.current()?.registerLocationObserver(locationObserver)
