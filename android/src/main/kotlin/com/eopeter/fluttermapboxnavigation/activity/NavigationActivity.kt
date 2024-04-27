@@ -4,12 +4,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.location.Location
 import android.os.Bundle
-import android.view.View
-import androidx.annotation.DrawableRes
-
-import org.json.JSONObject
 import androidx.appcompat.app.AppCompatActivity
 import com.eopeter.fluttermapboxnavigation.FlutterMapboxNavigationPlugin
 import com.eopeter.fluttermapboxnavigation.R
@@ -28,8 +27,14 @@ import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.geojson.Point
 import com.mapbox.maps.MapView
 import com.mapbox.maps.Style
-import com.mapbox.maps.plugin.gestures.OnMapLongClickListener
+import com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor
+import com.mapbox.maps.plugin.LocationPuck2D
+import com.mapbox.maps.plugin.annotation.AnnotationConfig
+import com.mapbox.maps.plugin.annotation.annotations
+import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
+import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
+import com.mapbox.maps.plugin.gestures.OnMapLongClickListener
 import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
 import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
@@ -46,12 +51,13 @@ import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.dropin.EmptyBinder
-import com.mapbox.navigation.dropin.actionbutton.ActionButtonDescription
 import com.mapbox.navigation.dropin.map.MapViewObserver
 import com.mapbox.navigation.dropin.navigationview.NavigationViewListener
 import com.mapbox.navigation.ui.base.lifecycle.UIBinder
-import com.mapbox.navigation.ui.base.view.MapboxExtendableButton
+import com.mapbox.navigation.ui.maps.puck.LocationPuckOptions
 import com.mapbox.navigation.utils.internal.ifNonNull
+import org.json.JSONObject
+import java.io.InputStream
 
 class NavigationActivity : AppCompatActivity() {
     private var finishBroadcastReceiver: BroadcastReceiver? = null
@@ -62,6 +68,8 @@ class NavigationActivity : AppCompatActivity() {
     private var accessToken: String? = null
     private var lastLocation: Location? = null
     private var isNavigationInProgress = false
+
+    var myMapView: MapView? = null
 
     private val navigationStateListener = object : NavigationViewListener() {
         override fun onFreeDrive() {
@@ -92,6 +100,7 @@ class NavigationActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.navigationView.addListener(navigationStateListener)
         binding.navigationView.registerMapObserver(onMapClick)
+        binding.navigationView.registerMapObserver(mapViewObserver)
         accessToken =
             PluginUtilities.getResourceFromContext(this.applicationContext, "mapbox_access_token")
 
@@ -118,7 +127,19 @@ class NavigationActivity : AppCompatActivity() {
         binding.navigationView.customizeViewBinders {
             infoPanelEndNavigationButtonBinder =
                 CustomInfoPanelEndNavButtonBinder(MapboxNavigationApp.current()!!)
-            actionButtonsBinder = CustomOpenCameraButtonBinder(MapboxNavigationApp.current()!!)
+            actionButtonsBinder =
+                CustomOpenCameraButtonBinder(MapboxNavigationApp.current()!!)
+        }
+
+        if (!FlutterMapboxNavigationPlugin.customPuckImage.isNullOrEmpty()) {
+            binding.navigationView.customizeViewStyles {
+                val imagePath = getPuckImageFromAsset()
+
+                locationPuckOptions = LocationPuckOptions
+                    .Builder(binding.root.context)
+                    .defaultPuck(LocationPuck2D(topImage = Drawable.createFromPath(imagePath)))
+                    .build()
+            }
         }
 
         MapboxNavigationApp.current()?.registerLocationObserver(locationObserver)
@@ -161,8 +182,6 @@ class NavigationActivity : AppCompatActivity() {
 
         if (styleUrlDay == null) styleUrlDay = Style.MAPBOX_STREETS
         if (styleUrlNight == null) styleUrlNight = Style.DARK
-        // set map style
-        binding.navigationView.customizeViewStyles {}
 
         // set map style
         binding.navigationView.customizeViewOptions {
@@ -181,6 +200,59 @@ class NavigationActivity : AppCompatActivity() {
         points.map { waypointSet.add(it) }
         requestRoutes(waypointSet)
 
+        if (!FlutterMapboxNavigationPlugin.customPinPath.isNullOrEmpty()) {
+            createCustomPinView(waypointSet)
+        }
+    }
+
+    private fun createCustomPinView(wayPoints: WaypointSet) {
+        val annotationApi = myMapView?.annotations
+
+        myMapView?.annotations?.cleanup()
+
+        val pointAnnotationManager = annotationApi?.createPointAnnotationManager(AnnotationConfig())
+
+        for (wp in wayPoints.coordinatesList().dropLast(1)) {
+            val imagePath = getPinImageFromAsset()
+            val stream = binding.root.context.assets.open(imagePath)
+            var bitmap: Bitmap = BitmapFactory.decodeStream(stream)
+            bitmap = Bitmap.createScaledBitmap(bitmap, 60, 60, false)
+
+            val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
+                .withPoint(wp)
+                .withIconImage(bitmap)
+                .withIconAnchor(IconAnchor.CENTER)
+            // Add the resulting pointAnnotation to the map.
+            pointAnnotationManager?.create(pointAnnotationOptions)
+        }
+    }
+
+    fun getPinImageFromAsset(): String {
+        try {
+            var image =
+                FlutterMapboxNavigationPlugin.flutterAssets.getAssetFilePathBySubpath(
+                    FlutterMapboxNavigationPlugin.customPinPath!!
+                )
+
+            return image
+        } catch (_: java.lang.Exception) {
+            return ""
+        }
+
+    }
+
+    fun getPuckImageFromAsset(): String {
+        try {
+            var image =
+                FlutterMapboxNavigationPlugin.flutterAssets.getAssetFilePathBySubpath(
+                    FlutterMapboxNavigationPlugin.customPuckImage!!
+                )
+
+            return image
+        } catch (_: java.lang.Exception) {
+            return ""
+        }
+
     }
 
     override fun onDestroy() {
@@ -191,6 +263,7 @@ class NavigationActivity : AppCompatActivity() {
         if (FlutterMapboxNavigationPlugin.enableOnMapTapCallback) {
             binding.navigationView.unregisterMapObserver(onMapClick)
         }
+        binding.navigationView.unregisterMapObserver(mapViewObserver)
         binding.navigationView.removeListener(navigationStateListener)
         MapboxNavigationApp.current()?.unregisterLocationObserver(locationObserver)
         MapboxNavigationApp.current()?.unregisterRouteProgressObserver(routeProgressObserver)
@@ -367,7 +440,10 @@ class NavigationActivity : AppCompatActivity() {
         override fun onFinalDestinationArrival(routeProgress: RouteProgress) {
             isNavigationInProgress = false
             val json = JSONObject();
-            json.put("location", routeProgress.currentLegProgress?.legDestination?.location?.coordinates())
+            json.put(
+                "location",
+                routeProgress.currentLegProgress?.legDestination?.location?.coordinates()
+            )
             json.put("name", routeProgress.currentLegProgress?.legDestination?.name)
             sendEvent(
                 MapBoxEvents.ON_ARRIVAL,
@@ -381,7 +457,10 @@ class NavigationActivity : AppCompatActivity() {
 
         override fun onWaypointArrival(routeProgress: RouteProgress) {
             val json = JSONObject();
-            json.put("location", routeProgress.currentLegProgress?.legDestination?.location?.coordinates())
+            json.put(
+                "location",
+                routeProgress.currentLegProgress?.legDestination?.location?.coordinates()
+            )
             json.put("name", routeProgress.currentLegProgress?.legDestination?.name)
             sendEvent(
                 MapBoxEvents.ON_ARRIVAL,
@@ -427,6 +506,18 @@ class NavigationActivity : AppCompatActivity() {
                 requestRoutes(waypointSet)
             }
             return false
+        }
+    }
+
+    val mapViewObserver: MapViewObserver = object : MapViewObserver() {
+        override fun onAttached(mapView: MapView) {
+            super.onAttached(mapView)
+            myMapView = mapView
+        }
+
+        override fun onDetached(mapView: MapView) {
+            super.onDetached(mapView)
+            myMapView = null
         }
     }
 

@@ -155,6 +155,7 @@ class MapBoxOptions with _$MapBoxOptions {
     /// unpaved
     /// cash_only_tolls
     List<Exclusion>? exclude,
+    @JsonKey(includeIfNull: false) String? customPuckImage,
   }) = _MapBoxOptions;
 
   factory MapBoxOptions.fromJson(Map<String, dynamic> json) =>

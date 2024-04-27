@@ -23,7 +23,6 @@ class CustomOpenCameraButtonBinder(
             R.style.MapboxStyleCameraModeButton_Circle
         )
         button.iconImage.setImageResource(android.R.drawable.ic_menu_camera)
-        button.iconImage.imageTintList = ColorStateList.valueOf(Color.WHITE)
         viewGroup.removeAllViews()
         viewGroup.addView(button)
         button.foregroundGravity = Gravity.CENTER
