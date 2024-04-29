@@ -42,6 +42,7 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
     var _enableOnMapTapCallback = false
     var _customPinPath: String?
     var _customPuckImage: String?
+    var _enableCameraButton: false
     var _exclusions: [String] = []
     var navigationDirections: Directions?
     
@@ -200,17 +201,17 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
         let flutterViewController = UIApplication.shared.delegate?.window??.rootViewController as! FlutterViewController
         flutterViewController.present(self._navigationViewController!, animated: true, completion:
                                         {
-            
-            if #available(iOS 13.0, *) {
-                let customButton = FloatingButton.rounded(image: UIImage(systemName: "camera.fill"),type: .custom)
-                
-                customButton.addTarget(self, action:#selector(self.openCamera), for: .touchUpInside)
-                
-                self._navigationViewController!.floatingButtons?.append(customButton)
-            } else {
-                // Fallback on earlier versions
+            if (_enableCameraButton) {
+                if #available(iOS 13.0, *) {
+                    let customButton = FloatingButton.rounded(image: UIImage(systemName: "camera.fill"),type: .custom)
+                    
+                    customButton.addTarget(self, action:#selector(self.openCamera), for: .touchUpInside)
+                    
+                    self._navigationViewController!.floatingButtons?.append(customButton)
+                } else {
+                    // Fallback on earlier versions
+                }
             }
-            
         }
         )
     }
@@ -303,6 +304,7 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
         _alternatives = arguments?["alternatives"] as? Bool ?? _alternatives
         _customPinPath = arguments?["customPinPath"] as? String ?? _customPinPath
         _customPuckImage = arguments?["customPuckImage"] as? String
+        _enableCameraButton = arguments?["enableCameraButton"] as? Bool
         _exclusions = arguments?["exclude"] as? [String] ?? _exclusions
     }
     

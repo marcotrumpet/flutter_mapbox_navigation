@@ -155,7 +155,12 @@ class MapBoxOptions with _$MapBoxOptions {
     /// unpaved
     /// cash_only_tolls
     List<Exclusion>? exclude,
+
+    /// Custom image from Flutter assets to be used as puck location image
     @JsonKey(includeIfNull: false) String? customPuckImage,
+
+    /// enable or disable camera button
+    bool? enableCameraButton,
   }) = _MapBoxOptions;
 
   factory MapBoxOptions.fromJson(Map<String, dynamic> json) =>

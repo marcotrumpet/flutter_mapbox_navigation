@@ -159,8 +159,13 @@ mixin _$MapBoxOptions {
   /// unpaved
   /// cash_only_tolls
   List<Exclusion>? get exclude => throw _privateConstructorUsedError;
+
+  /// Custom image from Flutter assets to be used as puck location image
   @JsonKey(includeIfNull: false)
   String? get customPuckImage => throw _privateConstructorUsedError;
+
+  /// enable or disable camera button
+  bool? get enableCameraButton => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -205,7 +210,8 @@ abstract class $MapBoxOptionsCopyWith<$Res> {
       bool? showActionButtons,
       String? customPinPath,
       List<Exclusion>? exclude,
-      @JsonKey(includeIfNull: false) String? customPuckImage});
+      @JsonKey(includeIfNull: false) String? customPuckImage,
+      bool? enableCameraButton});
 }
 
 /// @nodoc
@@ -252,6 +258,7 @@ class _$MapBoxOptionsCopyWithImpl<$Res, $Val extends MapBoxOptions>
     Object? customPinPath = freezed,
     Object? exclude = freezed,
     Object? customPuckImage = freezed,
+    Object? enableCameraButton = freezed,
   }) {
     return _then(_value.copyWith(
       initialLatitude: freezed == initialLatitude
@@ -378,6 +385,10 @@ class _$MapBoxOptionsCopyWithImpl<$Res, $Val extends MapBoxOptions>
           ? _value.customPuckImage
           : customPuckImage // ignore: cast_nullable_to_non_nullable
               as String?,
+      enableCameraButton: freezed == enableCameraButton
+          ? _value.enableCameraButton
+          : enableCameraButton // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ) as $Val);
   }
 }
@@ -421,7 +432,8 @@ abstract class _$$_MapBoxOptionsCopyWith<$Res>
       bool? showActionButtons,
       String? customPinPath,
       List<Exclusion>? exclude,
-      @JsonKey(includeIfNull: false) String? customPuckImage});
+      @JsonKey(includeIfNull: false) String? customPuckImage,
+      bool? enableCameraButton});
 }
 
 /// @nodoc
@@ -466,6 +478,7 @@ class __$$_MapBoxOptionsCopyWithImpl<$Res>
     Object? customPinPath = freezed,
     Object? exclude = freezed,
     Object? customPuckImage = freezed,
+    Object? enableCameraButton = freezed,
   }) {
     return _then(_$_MapBoxOptions(
       initialLatitude: freezed == initialLatitude
@@ -592,6 +605,10 @@ class __$$_MapBoxOptionsCopyWithImpl<$Res>
           ? _value.customPuckImage
           : customPuckImage // ignore: cast_nullable_to_non_nullable
               as String?,
+      enableCameraButton: freezed == enableCameraButton
+          ? _value.enableCameraButton
+          : enableCameraButton // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ));
   }
 }
@@ -631,7 +648,8 @@ class _$_MapBoxOptions implements _MapBoxOptions {
       this.showActionButtons,
       this.customPinPath,
       final List<Exclusion>? exclude,
-      @JsonKey(includeIfNull: false) this.customPuckImage})
+      @JsonKey(includeIfNull: false) this.customPuckImage,
+      this.enableCameraButton})
       : _exclude = exclude;
 
   factory _$_MapBoxOptions.fromJson(Map<String, dynamic> json) =>
@@ -820,13 +838,18 @@ class _$_MapBoxOptions implements _MapBoxOptions {
     return EqualUnmodifiableListView(value);
   }
 
+  /// Custom image from Flutter assets to be used as puck location image
   @override
   @JsonKey(includeIfNull: false)
   final String? customPuckImage;
 
+  /// enable or disable camera button
+  @override
+  final bool? enableCameraButton;
+
   @override
   String toString() {
-    return 'MapBoxOptions(initialLatitude: $initialLatitude, initialLongitude: $initialLongitude, language: $language, zoom: $zoom, bearing: $bearing, tilt: $tilt, alternatives: $alternatives, mode: $mode, units: $units, allowsUTurnAtWayPoints: $allowsUTurnAtWayPoints, enableRefresh: $enableRefresh, voiceInstructionsEnabled: $voiceInstructionsEnabled, bannerInstructionsEnabled: $bannerInstructionsEnabled, simulateRoute: $simulateRoute, mapStyleUrlDay: $mapStyleUrlDay, mapStyleUrlNight: $mapStyleUrlNight, isOptimized: $isOptimized, animateBuildRoute: $animateBuildRoute, longPressDestinationEnabled: $longPressDestinationEnabled, showReportFeedbackButton: $showReportFeedbackButton, showEndOfRouteFeedback: $showEndOfRouteFeedback, enableOnMapTapCallback: $enableOnMapTapCallback, showInfoPanel: $showInfoPanel, showSpeedLimit: $showSpeedLimit, showRecenterActionButton: $showRecenterActionButton, showRoadName: $showRoadName, showCompassActionButton: $showCompassActionButton, showActionButtons: $showActionButtons, customPinPath: $customPinPath, exclude: $exclude, customPuckImage: $customPuckImage)';
+    return 'MapBoxOptions(initialLatitude: $initialLatitude, initialLongitude: $initialLongitude, language: $language, zoom: $zoom, bearing: $bearing, tilt: $tilt, alternatives: $alternatives, mode: $mode, units: $units, allowsUTurnAtWayPoints: $allowsUTurnAtWayPoints, enableRefresh: $enableRefresh, voiceInstructionsEnabled: $voiceInstructionsEnabled, bannerInstructionsEnabled: $bannerInstructionsEnabled, simulateRoute: $simulateRoute, mapStyleUrlDay: $mapStyleUrlDay, mapStyleUrlNight: $mapStyleUrlNight, isOptimized: $isOptimized, animateBuildRoute: $animateBuildRoute, longPressDestinationEnabled: $longPressDestinationEnabled, showReportFeedbackButton: $showReportFeedbackButton, showEndOfRouteFeedback: $showEndOfRouteFeedback, enableOnMapTapCallback: $enableOnMapTapCallback, showInfoPanel: $showInfoPanel, showSpeedLimit: $showSpeedLimit, showRecenterActionButton: $showRecenterActionButton, showRoadName: $showRoadName, showCompassActionButton: $showCompassActionButton, showActionButtons: $showActionButtons, customPinPath: $customPinPath, exclude: $exclude, customPuckImage: $customPuckImage, enableCameraButton: $enableCameraButton)';
   }
 
   @override
@@ -890,7 +913,9 @@ class _$_MapBoxOptions implements _MapBoxOptions {
                 other.customPinPath == customPinPath) &&
             const DeepCollectionEquality().equals(other._exclude, _exclude) &&
             (identical(other.customPuckImage, customPuckImage) ||
-                other.customPuckImage == customPuckImage));
+                other.customPuckImage == customPuckImage) &&
+            (identical(other.enableCameraButton, enableCameraButton) ||
+                other.enableCameraButton == enableCameraButton));
   }
 
   @JsonKey(ignore: true)
@@ -927,7 +952,8 @@ class _$_MapBoxOptions implements _MapBoxOptions {
         showActionButtons,
         customPinPath,
         const DeepCollectionEquality().hash(_exclude),
-        customPuckImage
+        customPuckImage,
+        enableCameraButton
       ]);
 
   @JsonKey(ignore: true)
@@ -946,38 +972,38 @@ class _$_MapBoxOptions implements _MapBoxOptions {
 
 abstract class _MapBoxOptions implements MapBoxOptions {
   const factory _MapBoxOptions(
-          {final double? initialLatitude,
-          final double? initialLongitude,
-          final String? language,
-          final double? zoom,
-          final double? bearing,
-          final double? tilt,
-          final bool? alternatives,
-          final MapBoxNavigationMode? mode,
-          final VoiceUnits? units,
-          final bool? allowsUTurnAtWayPoints,
-          final bool? enableRefresh,
-          final bool? voiceInstructionsEnabled,
-          final bool? bannerInstructionsEnabled,
-          final bool? simulateRoute,
-          final String? mapStyleUrlDay,
-          final String? mapStyleUrlNight,
-          final bool? isOptimized,
-          final bool? animateBuildRoute,
-          final bool? longPressDestinationEnabled,
-          final bool? showReportFeedbackButton,
-          final bool? showEndOfRouteFeedback,
-          final bool? enableOnMapTapCallback,
-          final bool? showInfoPanel,
-          final bool? showSpeedLimit,
-          final bool? showRecenterActionButton,
-          final bool? showRoadName,
-          final bool? showCompassActionButton,
-          final bool? showActionButtons,
-          final String? customPinPath,
-          final List<Exclusion>? exclude,
-          @JsonKey(includeIfNull: false) final String? customPuckImage}) =
-      _$_MapBoxOptions;
+      {final double? initialLatitude,
+      final double? initialLongitude,
+      final String? language,
+      final double? zoom,
+      final double? bearing,
+      final double? tilt,
+      final bool? alternatives,
+      final MapBoxNavigationMode? mode,
+      final VoiceUnits? units,
+      final bool? allowsUTurnAtWayPoints,
+      final bool? enableRefresh,
+      final bool? voiceInstructionsEnabled,
+      final bool? bannerInstructionsEnabled,
+      final bool? simulateRoute,
+      final String? mapStyleUrlDay,
+      final String? mapStyleUrlNight,
+      final bool? isOptimized,
+      final bool? animateBuildRoute,
+      final bool? longPressDestinationEnabled,
+      final bool? showReportFeedbackButton,
+      final bool? showEndOfRouteFeedback,
+      final bool? enableOnMapTapCallback,
+      final bool? showInfoPanel,
+      final bool? showSpeedLimit,
+      final bool? showRecenterActionButton,
+      final bool? showRoadName,
+      final bool? showCompassActionButton,
+      final bool? showActionButtons,
+      final String? customPinPath,
+      final List<Exclusion>? exclude,
+      @JsonKey(includeIfNull: false) final String? customPuckImage,
+      final bool? enableCameraButton}) = _$_MapBoxOptions;
 
   factory _MapBoxOptions.fromJson(Map<String, dynamic> json) =
       _$_MapBoxOptions.fromJson;
@@ -1151,8 +1177,14 @@ abstract class _MapBoxOptions implements MapBoxOptions {
   /// cash_only_tolls
   List<Exclusion>? get exclude;
   @override
+
+  /// Custom image from Flutter assets to be used as puck location image
   @JsonKey(includeIfNull: false)
   String? get customPuckImage;
+  @override
+
+  /// enable or disable camera button
+  bool? get enableCameraButton;
   @override
   @JsonKey(ignore: true)
   _$$_MapBoxOptionsCopyWith<_$_MapBoxOptions> get copyWith =>

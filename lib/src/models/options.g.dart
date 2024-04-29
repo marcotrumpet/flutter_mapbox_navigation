@@ -41,6 +41,7 @@ _$_MapBoxOptions _$$_MapBoxOptionsFromJson(Map<String, dynamic> json) =>
           ?.map((e) => $enumDecode(_$ExclusionEnumMap, e))
           .toList(),
       customPuckImage: json['customPuckImage'] as String?,
+      enableCameraButton: json['enableCameraButton'] as bool?,
     );
 
 Map<String, dynamic> _$$_MapBoxOptionsToJson(_$_MapBoxOptions instance) {
@@ -84,6 +85,7 @@ Map<String, dynamic> _$$_MapBoxOptionsToJson(_$_MapBoxOptions instance) {
   }
 
   writeNotNull('customPuckImage', instance.customPuckImage);
+  val['enableCameraButton'] = instance.enableCameraButton;
   return val;
 }
 
