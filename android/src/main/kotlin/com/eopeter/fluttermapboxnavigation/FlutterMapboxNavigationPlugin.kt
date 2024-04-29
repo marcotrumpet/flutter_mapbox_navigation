@@ -80,6 +80,7 @@ class FlutterMapboxNavigationPlugin : FlutterPlugin, MethodCallHandler,
         var binaryMessenger: BinaryMessenger? = null
         var customPinPath: String? = null
         var customPuckImage: String? = null
+        var enableCameraButton: Boolean = false
 
         var viewId = "FlutterMapboxNavigationView"
 

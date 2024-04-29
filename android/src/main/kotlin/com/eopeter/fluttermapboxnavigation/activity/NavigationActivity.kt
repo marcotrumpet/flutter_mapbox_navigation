@@ -130,8 +130,10 @@ class NavigationActivity : AppCompatActivity() {
             infoPanelEndNavigationButtonBinder =
                 CustomInfoPanelEndNavButtonBinder(MapboxNavigationApp.current()!!)
 
-            actionButtonsBinder =
-                CustomOpenCameraButtonBinder()
+            if (FlutterMapboxNavigationPlugin.enableCameraButton) {
+                actionButtonsBinder =
+                    CustomOpenCameraButtonBinder()
+            }
         }
 
         if (!FlutterMapboxNavigationPlugin.customPuckImage.isNullOrEmpty()) {
