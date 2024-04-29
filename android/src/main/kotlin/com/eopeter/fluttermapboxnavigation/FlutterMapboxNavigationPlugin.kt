@@ -171,6 +171,8 @@ class FlutterMapboxNavigationPlugin : FlutterPlugin, MethodCallHandler,
 
         customPuckImage = arguments?.get("customPuckImage") as? String
 
+        enableCameraButton = arguments?.get("enableCameraButton") as? Boolean == false
+
         val language = arguments?.get("language") as? String
         if (language != null) {
             navigationLanguage = language
