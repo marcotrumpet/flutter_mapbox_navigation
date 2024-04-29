@@ -41,6 +41,7 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
     var _showEndOfRouteFeedback = true
     var _enableOnMapTapCallback = false
     var _customPinPath: String?
+    var _customPuckImage: String?
     var _exclusions: [String] = []
     var navigationDirections: Directions?
     
@@ -181,6 +182,10 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
             
             self._navigationViewController?.navigationMapView?.mapView.viewAnnotations.removeAll()
             
+            if (_customPuckImage != nil){
+                self._navigationViewController?.navigationMapView?.userLocationStyle = setupCustomPuck2D()
+            }
+            
             if (_customPinPath != nil) {
                 for wp in _wayPoints.dropFirst().dropLast() {
                     let options = ViewAnnotationOptions(geometry: Point(wp.coordinate), allowOverlap: true, anchor: .center)
@@ -212,6 +217,27 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
     
     @objc func openCamera(sender: UIButton!) {
         self.sendEvent(eventType: MapBoxEventType.open_camera)
+    }
+    
+    func setupCustomPuck2D() -> UserLocationStyle {
+        let flutterViewController = UIApplication.shared.delegate?.window??.rootViewController as! FlutterViewController
+        
+        let key = flutterViewController.lookupKey(forAsset: _customPuckImage!)
+        let mainBundle = Bundle.main
+        let path = mainBundle.path(forResource: key, ofType: nil)
+        
+        let image = UIImage.init(contentsOfFile: path!)
+        
+        // It's optional to set up `Puck2DConfiguration` to the `UserLocationStyle.puck2D`. Otherwise the default configuration for the `UserLocationStyle.puck2D` is `Puck2DConfiguration()`.
+        var puck2DConfiguration = Puck2DConfiguration()
+        if #available(iOS 13.0, *) {
+            puck2DConfiguration.topImage = image
+            puck2DConfiguration.scale = .constant(0.4)
+        }
+        
+        let userLocationStyle = UserLocationStyle.puck2D(configuration: puck2DConfiguration)
+        
+        return userLocationStyle;
     }
     
     func createCustomPinView() -> UIView? {
@@ -276,6 +302,7 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
         _longPressDestinationEnabled = arguments?["longPressDestinationEnabled"] as? Bool ?? _longPressDestinationEnabled
         _alternatives = arguments?["alternatives"] as? Bool ?? _alternatives
         _customPinPath = arguments?["customPinPath"] as? String ?? _customPinPath
+        _customPuckImage = arguments?["customPuckImage"] as? String
         _exclusions = arguments?["exclude"] as? [String] ?? _exclusions
     }
     

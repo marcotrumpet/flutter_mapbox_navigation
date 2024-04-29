@@ -159,6 +159,8 @@ mixin _$MapBoxOptions {
   /// unpaved
   /// cash_only_tolls
   List<Exclusion>? get exclude => throw _privateConstructorUsedError;
+  @JsonKey(includeIfNull: false)
+  String? get customPuckImage => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -202,7 +204,8 @@ abstract class $MapBoxOptionsCopyWith<$Res> {
       bool? showCompassActionButton,
       bool? showActionButtons,
       String? customPinPath,
-      List<Exclusion>? exclude});
+      List<Exclusion>? exclude,
+      @JsonKey(includeIfNull: false) String? customPuckImage});
 }
 
 /// @nodoc
@@ -248,6 +251,7 @@ class _$MapBoxOptionsCopyWithImpl<$Res, $Val extends MapBoxOptions>
     Object? showActionButtons = freezed,
     Object? customPinPath = freezed,
     Object? exclude = freezed,
+    Object? customPuckImage = freezed,
   }) {
     return _then(_value.copyWith(
       initialLatitude: freezed == initialLatitude
@@ -370,6 +374,10 @@ class _$MapBoxOptionsCopyWithImpl<$Res, $Val extends MapBoxOptions>
           ? _value.exclude
           : exclude // ignore: cast_nullable_to_non_nullable
               as List<Exclusion>?,
+      customPuckImage: freezed == customPuckImage
+          ? _value.customPuckImage
+          : customPuckImage // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -412,7 +420,8 @@ abstract class _$$_MapBoxOptionsCopyWith<$Res>
       bool? showCompassActionButton,
       bool? showActionButtons,
       String? customPinPath,
-      List<Exclusion>? exclude});
+      List<Exclusion>? exclude,
+      @JsonKey(includeIfNull: false) String? customPuckImage});
 }
 
 /// @nodoc
@@ -456,6 +465,7 @@ class __$$_MapBoxOptionsCopyWithImpl<$Res>
     Object? showActionButtons = freezed,
     Object? customPinPath = freezed,
     Object? exclude = freezed,
+    Object? customPuckImage = freezed,
   }) {
     return _then(_$_MapBoxOptions(
       initialLatitude: freezed == initialLatitude
@@ -578,6 +588,10 @@ class __$$_MapBoxOptionsCopyWithImpl<$Res>
           ? _value._exclude
           : exclude // ignore: cast_nullable_to_non_nullable
               as List<Exclusion>?,
+      customPuckImage: freezed == customPuckImage
+          ? _value.customPuckImage
+          : customPuckImage // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -616,7 +630,8 @@ class _$_MapBoxOptions implements _MapBoxOptions {
       this.showCompassActionButton,
       this.showActionButtons,
       this.customPinPath,
-      final List<Exclusion>? exclude})
+      final List<Exclusion>? exclude,
+      @JsonKey(includeIfNull: false) this.customPuckImage})
       : _exclude = exclude;
 
   factory _$_MapBoxOptions.fromJson(Map<String, dynamic> json) =>
@@ -806,8 +821,12 @@ class _$_MapBoxOptions implements _MapBoxOptions {
   }
 
   @override
+  @JsonKey(includeIfNull: false)
+  final String? customPuckImage;
+
+  @override
   String toString() {
-    return 'MapBoxOptions(initialLatitude: $initialLatitude, initialLongitude: $initialLongitude, language: $language, zoom: $zoom, bearing: $bearing, tilt: $tilt, alternatives: $alternatives, mode: $mode, units: $units, allowsUTurnAtWayPoints: $allowsUTurnAtWayPoints, enableRefresh: $enableRefresh, voiceInstructionsEnabled: $voiceInstructionsEnabled, bannerInstructionsEnabled: $bannerInstructionsEnabled, simulateRoute: $simulateRoute, mapStyleUrlDay: $mapStyleUrlDay, mapStyleUrlNight: $mapStyleUrlNight, isOptimized: $isOptimized, animateBuildRoute: $animateBuildRoute, longPressDestinationEnabled: $longPressDestinationEnabled, showReportFeedbackButton: $showReportFeedbackButton, showEndOfRouteFeedback: $showEndOfRouteFeedback, enableOnMapTapCallback: $enableOnMapTapCallback, showInfoPanel: $showInfoPanel, showSpeedLimit: $showSpeedLimit, showRecenterActionButton: $showRecenterActionButton, showRoadName: $showRoadName, showCompassActionButton: $showCompassActionButton, showActionButtons: $showActionButtons, customPinPath: $customPinPath, exclude: $exclude)';
+    return 'MapBoxOptions(initialLatitude: $initialLatitude, initialLongitude: $initialLongitude, language: $language, zoom: $zoom, bearing: $bearing, tilt: $tilt, alternatives: $alternatives, mode: $mode, units: $units, allowsUTurnAtWayPoints: $allowsUTurnAtWayPoints, enableRefresh: $enableRefresh, voiceInstructionsEnabled: $voiceInstructionsEnabled, bannerInstructionsEnabled: $bannerInstructionsEnabled, simulateRoute: $simulateRoute, mapStyleUrlDay: $mapStyleUrlDay, mapStyleUrlNight: $mapStyleUrlNight, isOptimized: $isOptimized, animateBuildRoute: $animateBuildRoute, longPressDestinationEnabled: $longPressDestinationEnabled, showReportFeedbackButton: $showReportFeedbackButton, showEndOfRouteFeedback: $showEndOfRouteFeedback, enableOnMapTapCallback: $enableOnMapTapCallback, showInfoPanel: $showInfoPanel, showSpeedLimit: $showSpeedLimit, showRecenterActionButton: $showRecenterActionButton, showRoadName: $showRoadName, showCompassActionButton: $showCompassActionButton, showActionButtons: $showActionButtons, customPinPath: $customPinPath, exclude: $exclude, customPuckImage: $customPuckImage)';
   }
 
   @override
@@ -859,8 +878,7 @@ class _$_MapBoxOptions implements _MapBoxOptions {
                 other.showInfoPanel == showInfoPanel) &&
             (identical(other.showSpeedLimit, showSpeedLimit) ||
                 other.showSpeedLimit == showSpeedLimit) &&
-            (identical(
-                    other.showRecenterActionButton, showRecenterActionButton) ||
+            (identical(other.showRecenterActionButton, showRecenterActionButton) ||
                 other.showRecenterActionButton == showRecenterActionButton) &&
             (identical(other.showRoadName, showRoadName) ||
                 other.showRoadName == showRoadName) &&
@@ -870,7 +888,9 @@ class _$_MapBoxOptions implements _MapBoxOptions {
                 other.showActionButtons == showActionButtons) &&
             (identical(other.customPinPath, customPinPath) ||
                 other.customPinPath == customPinPath) &&
-            const DeepCollectionEquality().equals(other._exclude, _exclude));
+            const DeepCollectionEquality().equals(other._exclude, _exclude) &&
+            (identical(other.customPuckImage, customPuckImage) ||
+                other.customPuckImage == customPuckImage));
   }
 
   @JsonKey(ignore: true)
@@ -906,7 +926,8 @@ class _$_MapBoxOptions implements _MapBoxOptions {
         showCompassActionButton,
         showActionButtons,
         customPinPath,
-        const DeepCollectionEquality().hash(_exclude)
+        const DeepCollectionEquality().hash(_exclude),
+        customPuckImage
       ]);
 
   @JsonKey(ignore: true)
@@ -925,36 +946,38 @@ class _$_MapBoxOptions implements _MapBoxOptions {
 
 abstract class _MapBoxOptions implements MapBoxOptions {
   const factory _MapBoxOptions(
-      {final double? initialLatitude,
-      final double? initialLongitude,
-      final String? language,
-      final double? zoom,
-      final double? bearing,
-      final double? tilt,
-      final bool? alternatives,
-      final MapBoxNavigationMode? mode,
-      final VoiceUnits? units,
-      final bool? allowsUTurnAtWayPoints,
-      final bool? enableRefresh,
-      final bool? voiceInstructionsEnabled,
-      final bool? bannerInstructionsEnabled,
-      final bool? simulateRoute,
-      final String? mapStyleUrlDay,
-      final String? mapStyleUrlNight,
-      final bool? isOptimized,
-      final bool? animateBuildRoute,
-      final bool? longPressDestinationEnabled,
-      final bool? showReportFeedbackButton,
-      final bool? showEndOfRouteFeedback,
-      final bool? enableOnMapTapCallback,
-      final bool? showInfoPanel,
-      final bool? showSpeedLimit,
-      final bool? showRecenterActionButton,
-      final bool? showRoadName,
-      final bool? showCompassActionButton,
-      final bool? showActionButtons,
-      final String? customPinPath,
-      final List<Exclusion>? exclude}) = _$_MapBoxOptions;
+          {final double? initialLatitude,
+          final double? initialLongitude,
+          final String? language,
+          final double? zoom,
+          final double? bearing,
+          final double? tilt,
+          final bool? alternatives,
+          final MapBoxNavigationMode? mode,
+          final VoiceUnits? units,
+          final bool? allowsUTurnAtWayPoints,
+          final bool? enableRefresh,
+          final bool? voiceInstructionsEnabled,
+          final bool? bannerInstructionsEnabled,
+          final bool? simulateRoute,
+          final String? mapStyleUrlDay,
+          final String? mapStyleUrlNight,
+          final bool? isOptimized,
+          final bool? animateBuildRoute,
+          final bool? longPressDestinationEnabled,
+          final bool? showReportFeedbackButton,
+          final bool? showEndOfRouteFeedback,
+          final bool? enableOnMapTapCallback,
+          final bool? showInfoPanel,
+          final bool? showSpeedLimit,
+          final bool? showRecenterActionButton,
+          final bool? showRoadName,
+          final bool? showCompassActionButton,
+          final bool? showActionButtons,
+          final String? customPinPath,
+          final List<Exclusion>? exclude,
+          @JsonKey(includeIfNull: false) final String? customPuckImage}) =
+      _$_MapBoxOptions;
 
   factory _MapBoxOptions.fromJson(Map<String, dynamic> json) =
       _$_MapBoxOptions.fromJson;
@@ -1127,6 +1150,9 @@ abstract class _MapBoxOptions implements MapBoxOptions {
   /// unpaved
   /// cash_only_tolls
   List<Exclusion>? get exclude;
+  @override
+  @JsonKey(includeIfNull: false)
+  String? get customPuckImage;
   @override
   @JsonKey(ignore: true)
   _$$_MapBoxOptionsCopyWith<_$_MapBoxOptions> get copyWith =>
