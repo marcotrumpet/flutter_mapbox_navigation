@@ -6,10 +6,14 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.location.Location
 import android.os.Bundle
+import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import com.eopeter.fluttermapboxnavigation.FlutterMapboxNavigationPlugin
 import com.eopeter.fluttermapboxnavigation.R
 import com.eopeter.fluttermapboxnavigation.databinding.NavigationActivityBinding
@@ -17,9 +21,7 @@ import com.eopeter.fluttermapboxnavigation.models.MapBoxEvents
 import com.eopeter.fluttermapboxnavigation.models.MapBoxRouteProgressEvent
 import com.eopeter.fluttermapboxnavigation.models.Waypoint
 import com.eopeter.fluttermapboxnavigation.models.WaypointSet
-import com.eopeter.fluttermapboxnavigation.utilities.CustomInfoPanelEndNavButtonBinder
-import com.eopeter.fluttermapboxnavigation.utilities.CustomOpenCameraButtonBinder
-import com.eopeter.fluttermapboxnavigation.utilities.PluginUtilities
+import com.eopeter.fluttermapboxnavigation.utilities.*
 import com.eopeter.fluttermapboxnavigation.utilities.PluginUtilities.Companion.sendEvent
 import com.google.gson.Gson
 import com.mapbox.api.directions.v5.models.DirectionsRoute
@@ -127,8 +129,9 @@ class NavigationActivity : AppCompatActivity() {
         binding.navigationView.customizeViewBinders {
             infoPanelEndNavigationButtonBinder =
                 CustomInfoPanelEndNavButtonBinder(MapboxNavigationApp.current()!!)
+
             actionButtonsBinder =
-                CustomOpenCameraButtonBinder(MapboxNavigationApp.current()!!)
+                CustomOpenCameraButtonBinder()
         }
 
         if (!FlutterMapboxNavigationPlugin.customPuckImage.isNullOrEmpty()) {
@@ -137,10 +140,14 @@ class NavigationActivity : AppCompatActivity() {
 
                 locationPuckOptions = LocationPuckOptions
                     .Builder(binding.root.context)
-                    .defaultPuck(LocationPuck2D(topImage = Drawable.createFromPath(imagePath)))
+                    .defaultPuck(LocationPuck2D(topImage = assetDrawable(imagePath)))
                     .build()
             }
         }
+
+        val p = intent.getSerializableExtra("waypoints") as? MutableList<Waypoint>
+        if (p != null) points = p
+        points.map { waypointSet.add(it) }
 
         MapboxNavigationApp.current()?.registerLocationObserver(locationObserver)
         MapboxNavigationApp.current()?.registerRouteProgressObserver(routeProgressObserver)
@@ -195,35 +202,61 @@ class NavigationActivity : AppCompatActivity() {
             return
         }
 
-        val p = intent.getSerializableExtra("waypoints") as? MutableList<Waypoint>
-        if (p != null) points = p
-        points.map { waypointSet.add(it) }
         requestRoutes(waypointSet)
 
-        if (!FlutterMapboxNavigationPlugin.customPinPath.isNullOrEmpty()) {
-            createCustomPinView(waypointSet)
+    }
+
+    private fun assetDrawable(path: String): Drawable? {
+        return assets.open(path).use { stream ->
+            BitmapDrawable.createFromStream(stream, path)
         }
     }
 
     private fun createCustomPinView(wayPoints: WaypointSet) {
         val annotationApi = myMapView?.annotations
 
-        myMapView?.annotations?.cleanup()
+        annotationApi?.cleanup()
 
         val pointAnnotationManager = annotationApi?.createPointAnnotationManager(AnnotationConfig())
+        val imagePath = getPinImageFromAsset()
 
-        for (wp in wayPoints.coordinatesList().dropLast(1)) {
-            val imagePath = getPinImageFromAsset()
-            val stream = binding.root.context.assets.open(imagePath)
-            var bitmap: Bitmap = BitmapFactory.decodeStream(stream)
-            bitmap = Bitmap.createScaledBitmap(bitmap, 60, 60, false)
+        val image = assetDrawable(imagePath)
 
-            val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
-                .withPoint(wp)
-                .withIconImage(bitmap)
-                .withIconAnchor(IconAnchor.CENTER)
-            // Add the resulting pointAnnotation to the map.
-            pointAnnotationManager?.create(pointAnnotationOptions)
+        val bitmap = convertDrawableToBitmap(image)
+
+        if (bitmap != null) {
+
+            for (wp in wayPoints.coordinatesList().drop(1)) {
+                val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
+                    .withPoint(wp)
+                    .withIconImage(bitmap)
+                    .withIconAnchor(IconAnchor.CENTER)
+                    .withIconSize(0.1)
+                // Add the resulting pointAnnotation to the map.
+                pointAnnotationManager?.create(pointAnnotationOptions)
+            }
+
+        }
+    }
+
+    private fun convertDrawableToBitmap(sourceDrawable: Drawable?): Bitmap? {
+        if (sourceDrawable == null) {
+            return null
+        }
+        return if (sourceDrawable is BitmapDrawable) {
+            sourceDrawable.bitmap
+        } else {
+            // copying drawable object to not manipulate on the same reference
+            val constantState = sourceDrawable.constantState ?: return null
+            val drawable = constantState.newDrawable().mutate()
+            val bitmap: Bitmap = Bitmap.createBitmap(
+                10, 10,
+                Bitmap.Config.ARGB_8888
+            )
+            val canvas = Canvas(bitmap)
+            drawable.setBounds(0, 0, canvas.width, canvas.height)
+            drawable.draw(canvas)
+            bitmap
         }
     }
 
@@ -513,6 +546,10 @@ class NavigationActivity : AppCompatActivity() {
         override fun onAttached(mapView: MapView) {
             super.onAttached(mapView)
             myMapView = mapView
+
+            if (!FlutterMapboxNavigationPlugin.customPinPath.isNullOrEmpty()) {
+                createCustomPinView(waypointSet)
+            }
         }
 
         override fun onDetached(mapView: MapView) {
